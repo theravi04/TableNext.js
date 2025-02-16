@@ -9,7 +9,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogTrigger,
@@ -18,6 +18,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge"
+import { X } from 'lucide-react';
 
 interface RowData {
   creative_id: number;
@@ -490,7 +492,214 @@ const data = [
 //     </div>
 //   );
 // }
-export function TableDemo() {
+
+
+// HERER
+
+
+// export function TableDemo() {
+//     const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
+//     const [searchTerm, setSearchTerm] = useState("");
+//     const [sortColumn, setSortColumn] = useState<keyof RowData | null>(null);
+//     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+//     const [thisModal, setThisModal] = useState(false);
+  
+//     const filteredData = data.filter((item) =>
+//       Object.values(item).some((value) =>
+//         value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+//       )
+//     );
+  
+//     const sortedData = [...filteredData].sort((a, b) => {
+//       if (!sortColumn) return 0;
+//       const valA = a[sortColumn];
+//       const valB = b[sortColumn];
+//       if (typeof valA === "string" && typeof valB === "string") {
+//         return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+//       }
+//       if (typeof valA === "number" && typeof valB === "number") {
+//         return sortOrder === "asc" ? valA - valB : valB - valA;
+//       }
+//       return 0;
+//     });
+  
+//     return (
+//       <div>
+//         {/* Search Input */}
+//         <Input
+//           placeholder="Search..."
+//           className="mb-2 w-full"
+//           value={searchTerm}
+//           onChange={(e) => setSearchTerm(e.target.value)}
+//         />
+  
+//         {/* Table */}
+//         <Table className="border-collapse border border-gray-200 w-full text-[10px]">
+//           <TableHeader className="bg-gray-100">
+//             <TableRow className="border-b border-gray-200">
+//               {Object.keys(data[0]).map((key) => (
+//                 <TableHead
+//                   key={key}
+//                   className="cursor-pointer px-1 py-0.5 border-r border-gray-200"
+//                   onClick={() => {
+//                     setSortColumn(key as keyof RowData); // ✅ FIX: Explicit type assertion
+//                     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+//                   }}
+//                 >
+//                   {key.replace(/_/g, " ").toUpperCase()} {sortColumn === key ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+//                 </TableHead>
+//               ))}
+//             </TableRow>
+//           </TableHeader>
+//           <TableBody>
+//             {sortedData.map((item, index) => (
+//               <TableRow
+//                 key={index}
+//                 className="cursor-pointer border-b border-gray-200 hover:bg-gray-50"
+//                 onClick={() => {
+//                   setSelectedRow(item);
+//                 }}
+//               >
+//                 {Object.values(item).map((value, idx) => (
+//                   <TableCell key={idx} className="px-1 py-0.5 border-r border-gray-200">
+//                     {typeof value === "string" || typeof value === "number"
+//                       ? value.toString().length > 10
+//                         ? `${value.toString().substring(0, 10)}...`
+//                         : value
+//                       : JSON.stringify(value).length > 10
+//                       ? `${JSON.stringify(value).substring(0, 10)}...`
+//                       : JSON.stringify(value)}
+//                   </TableCell>
+//                 ))}
+//               </TableRow>
+//             ))}
+//           </TableBody>
+//         </Table>
+  
+//         {/* Row Preview Card */}
+//         {selectedRow && (
+//           <Card
+//             className="fixed bottom-4 right-4 shadow-lg p-4 w-[600px] max-h-[800px] overflow-auto cursor-pointer"
+//             onClick={() => setThisModal(true)}
+//           >
+//             <Button
+//               className="absolute top-2 right-2"
+//               size="sm"
+//               onClick={(e) => {
+//                 e.stopPropagation(); // Prevent opening modal while closing
+//                 setSelectedRow(null);
+//               }}
+//             >
+//               ✕
+//             </Button>
+//             <h3 className="font-semibold text-sm">Row Preview</h3>
+//             <pre className="text-xs whitespace-pre-wrap break-words">{JSON.stringify(selectedRow, null, 2)}</pre>
+//           </Card>
+//         )}
+  
+//         {/* Modal Dialog */}
+//         <Dialog open={thisModal} onOpenChange={setThisModal}>
+//             <DialogContent>
+//               <DialogHeader>
+//                 <DialogTitle>Full Row Data</DialogTitle>
+//               </DialogHeader>
+//               <pre className="text-sm whitespace-pre-wrap break-words">{JSON.stringify(selectedRow, null, 2)}</pre>
+//               <Button
+//                 className="absolute top-2 right-2"
+//                 size="sm"
+//                 onClick={() => {
+//                   setThisModal(false);
+//                 //   setSelectedRow(null);
+//                 }}
+//               >
+//                 ✕
+//               </Button>
+//             </DialogContent>
+//           </Dialog>
+//       </div>
+//     );
+//   }
+const RowPreviewContent = ({ selectedRow }: { selectedRow: RowData }) => {
+    // Format tags into array
+    const tags = selectedRow.tags ? selectedRow.tags.split(';').filter(tag => tag) : [];
+    
+    // Group metrics
+    const metrics = {
+      'Performance Metrics': [
+        { key: 'ipm', label: 'IPM', value: selectedRow.ipm },
+        { key: 'ctr', label: 'CTR', value: selectedRow.ctr },
+        { key: 'cpm', label: 'CPM', value: `$${selectedRow.cpm}` },
+      ],
+      'Cost Metrics': [
+        { key: 'spend', label: 'Spend', value: `$${selectedRow.spend}` },
+        { key: 'cost_per_click', label: 'Cost per Click', value: `$${selectedRow.cost_per_click}` },
+        { key: 'cost_per_install', label: 'Cost per Install', value: `$${selectedRow.cost_per_install}` },
+      ],
+      'Engagement Metrics': [
+        { key: 'impressions', label: 'Impressions', value: selectedRow.impressions.toLocaleString() },
+        { key: 'clicks', label: 'Clicks', value: selectedRow.clicks.toLocaleString() },
+        { key: 'installs', label: 'Installs', value: selectedRow.installs.toLocaleString() },
+      ]
+    };
+  
+    // General info
+    const generalInfo = [
+      { key: 'creative_id', label: 'Creative ID', value: selectedRow.creative_id },
+      { key: 'creative_name', label: 'Creative Name', value: selectedRow.creative_name },
+      { key: 'country', label: 'Country', value: selectedRow.country },
+      { key: 'ad_network', label: 'Ad Network', value: selectedRow.ad_network },
+      { key: 'os', label: 'OS', value: selectedRow.os },
+      { key: 'campaign', label: 'Campaign', value: selectedRow.campaign },
+      { key: 'ad_group', label: 'Ad Group', value: selectedRow.ad_group },
+    ];
+  
+    return (
+      <div className="space-y-6">
+        {/* General Information */}
+        <div>
+          <h3 className="font-medium text-sm mb-2 text-gray-500">General Information</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {generalInfo.map(({ key, label, value }) => (
+              <div key={key} className="space-y-1">
+                <p className="text-xs text-gray-500">{label}</p>
+                <p className="font-medium">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Tags */}
+        <div>
+          <h3 className="font-medium text-sm mb-2 text-gray-500">Tags</h3>
+          <div className="flex flex-wrap gap-1">
+            {tags.map((tag, index) => (
+              <Badge key={index} variant="secondary" className="text-xs">
+                {tag.trim()}
+              </Badge>
+            ))}
+          </div>
+        </div>
+        
+        {/* Metrics */}
+        {Object.entries(metrics).map(([section, items]) => (
+          <div key={section}>
+            <h3 className="font-medium text-sm mb-2 text-gray-500">{section}</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {items.map(({ key, label, value }) => (
+                <div key={key} className="space-y-1">
+                  <p className="text-xs text-gray-500">{label}</p>
+                  <p className="font-medium">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+  
+  // Main TableDemo component
+  export function TableDemo() {
     const [selectedRow, setSelectedRow] = useState<RowData | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [sortColumn, setSortColumn] = useState<keyof RowData | null>(null);
@@ -535,7 +744,7 @@ export function TableDemo() {
                   key={key}
                   className="cursor-pointer px-1 py-0.5 border-r border-gray-200"
                   onClick={() => {
-                    setSortColumn(key as keyof RowData); // ✅ FIX: Explicit type assertion
+                    setSortColumn(key as keyof RowData);
                     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
                   }}
                 >
@@ -569,47 +778,53 @@ export function TableDemo() {
           </TableBody>
         </Table>
   
-        {/* Row Preview Card */}
+        {/* Improved Row Preview Card */}
         {selectedRow && (
           <Card
-            className="fixed bottom-4 right-4 shadow-lg p-4 w-[600px] max-h-[800px] overflow-auto cursor-pointer"
+            className="fixed bottom-4 right-4 shadow-lg w-[500px] max-h-[500px] overflow-auto cursor-pointer z-50"
             onClick={() => setThisModal(true)}
           >
-            <Button
-              className="absolute top-2 right-2"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent opening modal while closing
-                setSelectedRow(null);
-              }}
-            >
-              ✕
-            </Button>
-            <h3 className="font-semibold text-sm">Row Preview</h3>
-            <pre className="text-xs whitespace-pre-wrap break-words">{JSON.stringify(selectedRow, null, 2)}</pre>
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg">Creative Details</CardTitle>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedRow(null);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <RowPreviewContent selectedRow={selectedRow} />
+            </CardContent>
           </Card>
         )}
   
         {/* Modal Dialog */}
         <Dialog open={thisModal} onOpenChange={setThisModal}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Full Row Data</DialogTitle>
-              </DialogHeader>
-              <pre className="text-sm whitespace-pre-wrap break-words">{JSON.stringify(selectedRow, null, 2)}</pre>
-              <Button
-                className="absolute top-2 right-2"
-                size="sm"
-                onClick={() => {
-                  setThisModal(false);
-                //   setSelectedRow(null);
-                }}
-              >
-                ✕
-              </Button>
-            </DialogContent>
-          </Dialog>
+          <DialogContent className="max-w-6xl max-h-[70vh] overflow-auto">
+            <DialogHeader>
+              <DialogTitle>Full Row Data</DialogTitle>
+            </DialogHeader>
+            
+            {selectedRow && <RowPreviewContent selectedRow={selectedRow} />}
+            
+            <Button
+              className="absolute top-2 right-2"
+              size="sm"
+              variant="ghost"
+              onClick={() => setThisModal(false)}
+            >
+              
+            </Button>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
-  
